@@ -3,6 +3,7 @@ from tkinter import messagebox
 
 jogo = [["" for _ in range(3)] for _ in range(3)]
 jogador_da_vez = "X"
+placar = {"X": 0, "O": 0}
 
 def trocar_turno():
     global jogador_da_vez
@@ -27,12 +28,16 @@ def verificar_empate():
                 return False
     return True
 
+def atualizar_placar():
+    label_placar.config(text=f"Placar - X: {placar['X']} | O: {placar['O']}")
+
 def exibir_resultado(resultado):
     if resultado == "Empate":
         messagebox.showinfo("Resultado", "O jogo empatou!")
     else:
+        placar[resultado] += 1
+        atualizar_placar()
         messagebox.showinfo("Resultado", f"Jogador {resultado} venceu!")
-
     for i in range(3):
         for j in range(3):
             botoes[i][j].config(state="disabled")
@@ -43,7 +48,6 @@ def clicar_linha_coluna(linha, coluna):
         jogo[linha][coluna] = jogador_da_vez
         cor = "blue" if jogador_da_vez == "X" else "red"
         botoes[linha][coluna].config(text=jogador_da_vez, state="disabled", fg=cor)
-
         if verificar_vitoria():
             exibir_resultado(jogador_da_vez)
         elif verificar_empate():
@@ -61,6 +65,11 @@ def resetar_jogo():
             botoes[i][j].config(text="", state="normal", fg="black")
     label_status.config(text="Vez do jogador: X")
 
+def zerar_placar():
+    placar["X"] = 0
+    placar["O"] = 0
+    atualizar_placar()
+
 janela = tk.Tk()
 janela.title("Jogo da Velha")
 
@@ -68,14 +77,23 @@ botoes = [[None for _ in range(3)] for _ in range(3)]
 
 for i in range(3):
     for j in range(3):
-        botoes[i][j] = tk.Button(janela, text="", font=("Arial", 24), width=5, height=2,
-                                 command=lambda linha=i, coluna=j: clicar_linha_coluna(linha, coluna))
+        botoes[i][j] = tk.Button(
+            janela, text="", font=("Arial", 24), width=5, height=2,
+            command=lambda linha=i, coluna=j: clicar_linha_coluna(linha, coluna)
+        )
         botoes[i][j].grid(row=i, column=j)
 
 label_status = tk.Label(janela, text="Vez do jogador: X", font=("Arial", 14))
 label_status.grid(row=3, column=0, columnspan=3)
 
+label_placar = tk.Label(janela, text="Placar - X: 0 | O: 0", font=("Arial", 12))
+label_placar.grid(row=4, column=0, columnspan=3)
+
 botao_resetar = tk.Button(janela, text="Novo Jogo", font=("Arial", 12), command=resetar_jogo)
-botao_resetar.grid(row=4, column=0, columnspan=3, pady=10)
+botao_resetar.grid(row=5, column=0, columnspan=3, pady=5)
+
+botao_zerar = tk.Button(janela, text="Zerar Placar", font=("Arial", 12), command=zerar_placar)
+botao_zerar.grid(row=6, column=0, columnspan=3, pady=5)
 
 janela.mainloop()
+
